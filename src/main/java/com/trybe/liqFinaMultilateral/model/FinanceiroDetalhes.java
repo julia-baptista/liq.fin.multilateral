@@ -30,8 +30,8 @@ public class FinanceiroDetalhes {
   private Long CNPJNLiqdantDebtd;
   private String nomCliDebtd;
   private Long CNPJNLiqdantCredtd;
-  private String NomCliCredtd;
-  private String TpTranscSLC;
+  private String nomCliCredtd;
+  private String tpTranscSLC;
 
 
   @ManyToOne(fetch = FetchType.LAZY)
