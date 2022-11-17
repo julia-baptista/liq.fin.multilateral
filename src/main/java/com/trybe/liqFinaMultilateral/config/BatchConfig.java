@@ -43,8 +43,8 @@ public class BatchConfig {
   @Bean
   public StaxEventItemReader<FinanceiroDetalhes> reader() {
     StaxEventItemReader<FinanceiroDetalhes> reader = new StaxEventItemReader<FinanceiroDetalhes>();
-    reader.setResource(new ClassPathResource("persons.xml"));
-    reader.setFragmentRootElementName("person");
+    reader.setResource(new ClassPathResource("SLC0001-modelo.xml"));
+    reader.setFragmentRootElementName("financeiroDetalhes");
 
     Map<String, String> aliasesMap = new HashMap<String, String>();
     aliasesMap.put("financeiroDetalhes", "com.trybe.liqFinaMultilateral.model.FinanceiroDetalhes");
