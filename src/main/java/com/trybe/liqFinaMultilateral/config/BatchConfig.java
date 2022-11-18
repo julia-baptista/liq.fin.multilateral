@@ -74,7 +74,7 @@ public class BatchConfig {
 
   @Bean
   public Job exportPerosnJob() {
-    return jobBuilderFactory.get("importPersonJob").incrementer(new RunIdIncrementer())
+    return jobBuilderFactory.get("importFinanceiroDetalhesJob").incrementer(new RunIdIncrementer())
         .flow(step1()).end().build();
   }
 }
