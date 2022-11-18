@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import com.trybe.liqFinaMultilateral.exception.ErroInesperadoException;
 import com.trybe.liqFinaMultilateral.model.FinanceiroDetalhes;
 import com.trybe.liqFinaMultilateral.repository.FinanceiroDetalhesRepository;
+import lombok.extern.log4j.Log4j2;
 
-
+@Log4j2
 @Service
 public class FinanceiroDetalhesService {
 

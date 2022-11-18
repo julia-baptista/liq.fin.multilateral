@@ -1,11 +1,3 @@
-DROP TABLE IF EXISTS financeiroGrupo;
-
-CREATE TABLE financeiroGrupo (
-	id INT NOT NULL UNIQUE,
-  	CodProdt VARCHAR(10),
-  	PRIMARY KEY(id)
-);
-
 DROP TABLE IF EXISTS financeiroDetalhes;
 
 CREATE TABLE financeiroDetalhes (
@@ -14,11 +6,9 @@ CREATE TABLE financeiroDetalhes (
   ISPBIFCredtd INT,
   ISPBIFDebtd INT,
   vlrLanc FLOAT,
-  CNPJNLiqdantDebtd INT,
+  CNPJNLiqdantDebtd BIGINT,
   nomCliDebtd VARCHAR(100),
-  CNPJNLiqdantCredtd INT,
+  CNPJNLiqdantCredtd VARCHAR(20),
   nomCliCredtd VARCHAR(100),
-  tpTranscSLC VARCHAR(100),
-  FOREIGN KEY (identdLinhaBilat) REFERENCES financeiroGrupo(id)
+  tpTranscSLC VARCHAR(100)
 );
-
