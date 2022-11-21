@@ -69,6 +69,7 @@
 			<scope>runtime</scope>
 		</dependency>
 		
+		
 		<!-- https://github.com/actframework/actframework/issues/190 -->
 		<dependency>
 	      <groupId>org.hibernate.javax.persistence</groupId>
@@ -91,6 +92,17 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-surefire-plugin</artifactId>
+			    <version>3.0.0-M6</version>
+			</plugin>
+			
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-compiler-plugin</artifactId>
+			    <version>3.10.1</version>
 			</plugin>
 		</plugins>
 	</build>
