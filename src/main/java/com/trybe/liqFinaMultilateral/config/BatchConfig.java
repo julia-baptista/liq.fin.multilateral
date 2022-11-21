@@ -1,31 +1,32 @@
 package com.trybe.liqFinaMultilateral.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import com.trybe.liqFinaMultilateral.initialload.Grupo_SLC0001_LiquidProdt;
+import com.trybe.liqFinaMultilateral.model.Doc;
+import com.trybe.liqFinaMultilateral.processor.ItemXmlProcessor;
+import com.trybe.liqFinaMultilateral.writer.ItemXmlWriter;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.xml.StaxEventItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.oxm.xstream.XStreamMarshaller;
+import org.springframework.core.io.Resource;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 
-// import com.trybe.liqFinaMultilateral.model.*;
-import com.trybe.liqFinaMultilateral.processor.FinanceiroItemProcessor;
+import javax.sql.DataSource;
 
+// https://keyholesoftware.com/2021/10/05/using-jaxb-and-staxeventitemreader-to-read-xml-data/
+// https://json2csharp.com/code-converters/xml-to-java
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig {
+
+  public static final String JOB_NAME = "LiqFinaMultilateral-Processing-Job";
 
   @Autowired
   private JobBuilderFactory jobBuilderFactory;
@@ -37,49 +38,41 @@ public class BatchConfig {
   private DataSource dataSource;
 
   @Bean
-  public FinanceiroItemProcessor processor() {
-    return new FinanceiroItemProcessor();
+  @StepScope
+  public ItemXmlProcessor itemProcessor() {
+    return new ItemXmlProcessor();
   }
 
   @Bean
-  public StaxEventItemReader<Grupo_SLC0001_LiquidProdt> reader() {
-    StaxEventItemReader<Grupo_SLC0001_LiquidProdt> reader =
-        new StaxEventItemReader<Grupo_SLC0001_LiquidProdt>();
-    reader.setResource(new ClassPathResource("SLC0001-modelo.xml"));
-    reader.setFragmentRootElementName("Grupo_SLC0001_LiquidProdt");
+  @StepScope
+  public StaxEventItemReader<Doc> itemReader() throws Exception {
+    Resource resource = new ClassPathResource("SLC0001-modelo.xml");
+    StaxEventItemReader<Doc> xmlFileReader = new StaxEventItemReader<Doc>();
+    xmlFileReader.setResource(resource);
+    xmlFileReader.setFragmentRootElementName("DOC");
 
-    Map<String, String> aliasesMap = new HashMap<String, String>();
-    aliasesMap.put("Grupo_SLC0001_LiquidProdt",
-        "com.trybe.liqFinaMultilateral.initialload.Grupo_SLC0001_LiquidProdt");
-    XStreamMarshaller marshaller = new XStreamMarshaller();
-    marshaller.setAliases(aliasesMap);
-
-    reader.setUnmarshaller(marshaller);
-    return reader;
+    Jaxb2Marshaller xmlMarshaller = new Jaxb2Marshaller();
+    xmlMarshaller.setClassesToBeBound(Doc.class);
+    xmlMarshaller.afterPropertiesSet();
+    xmlFileReader.setUnmarshaller(xmlMarshaller);
+    return xmlFileReader;
   }
 
   @Bean
-  public JdbcBatchItemWriter<Grupo_SLC0001_LiquidProdt> writer() {
-    JdbcBatchItemWriter<Grupo_SLC0001_LiquidProdt> writer =
-        new JdbcBatchItemWriter<Grupo_SLC0001_LiquidProdt>();
-    writer.setDataSource(dataSource);
-    writer.setSql(
-        "INSERT INTO financeiroDetalhes(identdLinhaBilat, tpDeb_Cred, ISPBIFCredtd, ISPBIFDebtd,"
-            + "vlrLanc, CNPJNLiqdantDebtd, nomCliDebtd, CNPJNLiqdantCredtd, nomCliCredtd, tpTranscSLC) VALUES(?,?,?,?,?,?,?,?,?,?)");
-    writer.setItemPreparedStatementSetter(new DetalhesPreparedStatementSetter());
-    return writer;
+  @StepScope
+  public ItemXmlWriter itemWriter() {
+    return new ItemXmlWriter();
   }
 
   @Bean
-  public Step step1() {
-    return stepBuilderFactory.get("step1")
-        .<Grupo_SLC0001_LiquidProdt, Grupo_SLC0001_LiquidProdt>chunk(100).reader(reader())
-        .processor(processor()).writer(writer()).build();
+  public Step processXmlFile() throws Exception {
+    return stepBuilderFactory.get("processXmlFile").<Doc, Doc>chunk(100).reader(itemReader())
+        .processor(itemProcessor()).writer(itemWriter()).build();
   }
 
   @Bean
-  public Job exportPerosnJob() {
-    return jobBuilderFactory.get("importGrupo_SLC0001_LiquidProdt")
-        .incrementer(new RunIdIncrementer()).flow(step1()).end().build();
+  public Job processXmlFileJob() throws Exception {
+    return jobBuilderFactory.get(JOB_NAME).incrementer(new RunIdIncrementer())
+        .flow(processXmlFile()).end().build();
   }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DOC xmlns="http://www.bcb.gov.br/SPB/SLC0001.xsd">
+<DOC>
    <BCMSG>
       <IdentdEmissor>99999999</IdentdEmissor>
       <IdentdDestinatario>12345678</IdentdDestinatario>
